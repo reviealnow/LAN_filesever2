@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mockup B — App Shell Dashboard</title>
+<style>
+  /* ---- Design tokens (the "Spacing – Dashboards" point) ---- */
+  :root {
+    --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+    --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+
+    --bg: #f4f6fa;
+    --panel: #ffffff;
+    --ink: #1b2333;
+    --muted: #687389;
+    --faint: #9aa4b8;
+    --accent: #1565c0;
+    --accent-weak: #e8f0fb;
+    --ok: #0c7a43;
+    --ok-weak: #e4f4ea;
+    --warn: #b25b00;
+    --warn-weak: #fbefe0;
+    --danger: #b3261e;
+    --border: #e3e8f0;
+    --shadow: 0 1px 2px rgba(20,30,55,.04), 0 6px 20px rgba(20,30,55,.06);
+    --radius: 14px;
+    --sidebar-w: 232px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ---- App shell ---- */
+  .app { display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    background: #0e1b33;
+    color: #c8d2e6;
+    padding: var(--space-5) var(--space-3);
+    display: flex; flex-direction: column; gap: var(--space-6);
+    position: sticky; top: 0; height: 100vh;
+  }
+  .brand { display: flex; align-items: center; gap: var(--space-3); padding: 0 var(--space-2); }
+  .brand-mark {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: linear-gradient(135deg, #1565c0, #2e90ff);
+    display: grid; place-items: center; font-weight: 800; color: #fff; font-size: 15px;
+  }
+  .brand-name { font-weight: 700; color: #fff; font-size: 15px; }
+  .brand-sub { font-size: 11px; color: #7e8aa6; }
+  .nav { display: flex; flex-direction: column; gap: var(--space-1); }
+  .nav-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #66738f; padding: 0 var(--space-2) var(--space-2); }
+  .nav a {
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: var(--space-3) var(--space-3); border-radius: 9px;
+    color: #c8d2e6; text-decoration: none; font-weight: 500;
+  }
+  .nav a:hover { background: rgba(255,255,255,.06); color: #fff; }
+  .nav a.active { background: var(--accent); color: #fff; }
+  .nav .ico { width: 18px; text-align: center; opacity: .9; }
+  .sidebar-foot { margin-top: auto; display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); border-top: 1px solid rgba(255,255,255,.08); }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: #2e90ff; color: #fff; display: grid; place-items: center; font-weight: 700; }
+
+  /* Main */
+  .main { display: flex; flex-direction: column; min-width: 0; }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex; align-items: center; gap: var(--space-4);
+    padding: var(--space-4) var(--space-6);
+    background: var(--panel); border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 5;
+  }
+  .toolbar h1 { font-size: 18px; margin: 0; }
+  .crumbs { color: var(--muted); font-size: 12px; }
+  .search {
+    margin-left: auto; display: flex; align-items: center; gap: var(--space-2);
+    background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+    padding: var(--space-2) var(--space-3); width: 280px; color: var(--muted);
+  }
+  .search input { border: 0; background: transparent; outline: none; width: 100%; font: inherit; color: var(--ink); }
+  .btn {
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    border: 1px solid var(--border); background: var(--panel); color: var(--ink);
+    padding: var(--space-2) var(--space-4); border-radius: 10px; font: inherit; font-weight: 600;
+    cursor: pointer; text-decoration: none;
+  }
+  .btn:hover { border-color: var(--faint); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #0f54a8; }
+  .btn-sm { padding: var(--space-1) var(--space-3); font-size: 12px; }
+
+  /* Content */
+  .content { padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-5); max-width: 1320px; width: 100%; }
+
+  /* KPI row */
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5); }
+  .kpi { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-5); box-shadow: var(--shadow); }
+  .kpi .label { color: var(--muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+  .kpi .value { font-size: 28px; font-weight: 800; margin-top: var(--space-2); letter-spacing: -.02em; }
+  .kpi .delta { font-size: 12px; margin-top: var(--space-2); display: inline-flex; gap: var(--space-1); padding: var(--space-1) var(--space-2); border-radius: 999px; font-weight: 600; }
+  .delta.up { color: var(--ok); background: var(--ok-weak); }
+  .delta.flat { color: var(--muted); background: var(--bg); }
+  .kpi .bar { height: 6px; border-radius: 999px; background: var(--bg); margin-top: var(--space-3); overflow: hidden; }
+  .kpi .bar > i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+
+  /* Card grid */
+  .grid { display: grid; grid-template-columns: minmax(0,1.7fr) minmax(320px,1fr); gap: var(--space-5); align-items: start; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .card-head { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-5) var(--space-5) var(--space-4); }
+  .card-head .titles { display: flex; flex-direction: column; }
+  .card-head h2 { font-size: 15px; margin: 0; }
+  .card-head .sub { color: var(--muted); font-size: 12px; }
+  .card-head .actions { margin-left: auto; display: flex; gap: var(--space-2); }
+  .kebab { border: 0; background: transparent; color: var(--faint); cursor: pointer; font-size: 18px; padding: 0 var(--space-1); }
+  .card-body { padding: 0 var(--space-5) var(--space-5); }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding: var(--space-3) var(--space-3); border-bottom: 1px solid var(--border); }
+  td { padding: var(--space-3) var(--space-3); border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: 0; }
+  tr:hover td { background: #fafbfe; }
+  .fname { display: flex; align-items: center; gap: var(--space-3); font-weight: 600; }
+  .ftype { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; font-size: 11px; font-weight: 800; color: #fff; }
+  .t-pdf { background: #d4453b; } .t-zip { background: #6b54c6; } .t-img { background: #0c7a43; } .t-doc { background: #1565c0; } .t-xls { background: #137a4d; }
+  .pill { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+  .pill-ok { color: var(--ok); background: var(--ok-weak); }
+  .row-actions a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 13px; }
+  .row-actions a.danger { color: var(--danger); margin-left: var(--space-3); }
+
+  /* Activity / notes */
+  .feed { display: flex; flex-direction: column; }
+  .feed-item { display: flex; gap: var(--space-3); padding: var(--space-3) 0; border-bottom: 1px solid var(--border); }
+  .feed-item:last-child { border-bottom: 0; }
+  .dot { width: 30px; height: 30px; border-radius: 50%; background: var(--accent-weak); color: var(--accent); display: grid; place-items: center; font-weight: 700; flex: none; }
+  .feed-item .meta { color: var(--muted); font-size: 12px; }
+  .note { background: #fffaf0; border: 1px solid #f2e4c4; border-left: 3px solid #e8b73a; border-radius: 10px; padding: var(--space-4); margin-bottom: var(--space-3); }
+  .note h3 { margin: 0 0 var(--space-1); font-size: 14px; }
+  .note p { margin: 0; color: #5b4a28; font-size: 13px; }
+  .note .meta { margin-top: var(--space-2); font-size: 11px; color: #9a854f; }
+
+  @media (max-width: 1100px) {
+    .kpis { grid-template-columns: repeat(2,1fr); }
+    .grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 720px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .kpis { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">L</div>
+      <div>
+        <div class="brand-name">LAN File Server</div>
+        <div class="brand-sub">office.local</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <div class="nav-label">Workspace</div>
+      <a class="active" href="#"><span class="ico">▣</span> Dashboard</a>
+      <a href="#"><span class="ico">🗂</span> Files</a>
+      <a href="#"><span class="ico">📌</span> Bulletin</a>
+      <a href="#"><span class="ico">👥</span> Members</a>
+      <div class="nav-label" style="margin-top:var(--space-4)">System</div>
+      <a href="#"><span class="ico">⚙</span> Settings</a>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="avatar">N</div>
+      <div>
+        <div style="color:#fff;font-weight:600;font-size:13px">Nelson</div>
+        <div style="font-size:11px;color:#7e8aa6">Sign out</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="toolbar">
+      <div>
+        <div class="crumbs">Workspace / Dashboard</div>
+        <h1>Operational Overview</h1>
+      </div>
+      <div class="search">🔍 <input placeholder="Search files, notes, people…" /></div>
+      <button class="btn">⤓ Export</button>
+      <button class="btn btn-primary">↑ Upload File</button>
+    </header>
+
+    <div class="content">
+      <!-- KPI row -->
+      <section class="kpis">
+        <div class="kpi">
+          <div class="label">Total Files</div>
+          <div class="value">1,284</div>
+          <span class="delta up">▲ 36 this week</span>
+        </div>
+        <div class="kpi">
+          <div class="label">Storage Used</div>
+          <div class="value">18.4 <span style="font-size:15px;color:var(--muted)">/ 50 GB</span></div>
+          <div class="bar"><i style="width:37%"></i></div>
+        </div>
+        <div class="kpi">
+          <div class="label">Active Threads</div>
+          <div class="value">12</div>
+          <span class="delta up">▲ 3 new replies</span>
+        </div>
+        <div class="kpi">
+          <div class="label">Members</div>
+          <div class="value">8</div>
+          <span class="delta flat">5 online now</span>
+        </div>
+      </section>
+
+      <!-- Card grid -->
+      <section class="grid">
+        <!-- Files table -->
+        <div class="card">
+          <div class="card-head">
+            <div class="titles">
+              <h2>Shared Files</h2>
+              <span class="sub">Recently uploaded across the workspace</span>
+            </div>
+            <div class="actions">
+              <button class="btn btn-sm">Filter</button>
+              <button class="kebab">⋯</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <table>
+              <thead><tr><th>Filename</th><th>Size</th><th>Uploader</th><th>Uploaded</th><th></th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><div class="fname"><span class="ftype t-pdf">PDF</span> Q2-report.pdf</div></td>
+                  <td>2.4 MB</td><td>Amy</td><td>2h ago</td>
+                  <td class="row-actions"><a href="#">Download</a></td>
+                </tr>
+                <tr>
+                  <td><div class="fname"><span class="ftype t-zip">ZIP</span> firmware-v3.zip</div></td>
+                  <td>48.1 MB</td><td>Nelson</td><td>5h ago</td>
+                  <td class="row-actions"><a href="#">Download</a><a class="danger" href="#">Delete</a></td>
+                </tr>
+                <tr>
+                  <td><div class="fname"><span class="ftype t-img">IMG</span> floorplan.png</div></td>
+                  <td>880 KB</td><td>Chen</td><td>Yesterday</td>
+                  <td class="row-actions"><a href="#">Download</a></td>
+                </tr>
+                <tr>
+                  <td><div class="fname"><span class="ftype t-xls">XLS</span> inventory.xlsx</div></td>
+                  <td>312 KB</td><td>Amy</td><td>Yesterday</td>
+                  <td class="row-actions"><a href="#">Download</a></td>
+                </tr>
+                <tr>
+                  <td><div class="fname"><span class="ftype t-doc">DOC</span> meeting-notes.docx</div></td>
+                  <td>54 KB</td><td>Nelson</td><td>2 days ago</td>
+                  <td class="row-actions"><a href="#">Download</a><a class="danger" href="#">Delete</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Right column: activity + notes -->
+        <div style="display:flex;flex-direction:column;gap:var(--space-5)">
+          <div class="card">
+            <div class="card-head">
+              <div class="titles"><h2>Recent Activity</h2><span class="sub">Last 24 hours</span></div>
+              <button class="kebab">⋯</button>
+            </div>
+            <div class="card-body">
+              <div class="feed">
+                <div class="feed-item"><div class="dot">A</div><div>Amy uploaded <b>Q2-report.pdf</b><div class="meta">2h ago</div></div></div>
+                <div class="feed-item"><div class="dot">C</div><div>Chen replied on <b>“Server maintenance”</b><div class="meta">4h ago</div></div></div>
+                <div class="feed-item"><div class="dot">N</div><div>Nelson deleted <b>old-build.zip</b><div class="meta">6h ago</div></div></div>
+                <div class="feed-item"><div class="dot">+</div><div>New member <b>Wei</b> joined<div class="meta">Yesterday</div></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div class="titles"><h2>Bulletin</h2><span class="sub">Pinned notes</span></div>
+              <a class="btn btn-sm" href="#">View all</a>
+            </div>
+            <div class="card-body">
+              <div class="note">
+                <h3>Server maintenance Fri 6pm</h3>
+                <p>Uploads will be paused for ~30 min while we expand storage.</p>
+                <div class="meta">Nelson · 3 replies</div>
+              </div>
+              <div class="note">
+                <h3>Please tag firmware builds</h3>
+                <p>Use vX.Y in the filename so we can sort releases.</p>
+                <div class="meta">Amy · 1 reply</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+</body>
+</html>

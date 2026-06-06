@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mockup C — Analytics Dashboard</title>
+<style>
+  :root{
+    --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;
+    --bg:#f4f6fa;--panel:#fff;--ink:#1b2333;--muted:#687389;--faint:#9aa4b8;
+    --accent:#1565c0;--accent2:#2e90ff;--ok:#0c7a43;--warn:#b25b00;--danger:#b3261e;
+    --border:#e3e8f0;--shadow:0 1px 2px rgba(20,30,55,.04),0 6px 20px rgba(20,30,55,.06);
+    --radius:14px;--sidebar-w:232px;
+  }
+  *{box-sizing:border-box;}html,body{margin:0;height:100%;}
+  body{background:var(--bg);color:var(--ink);font-family:"Inter","Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.5;}
+  .app{display:grid;grid-template-columns:var(--sidebar-w) 1fr;min-height:100vh;}
+  .sidebar{background:#0e1b33;color:#c8d2e6;padding:var(--space-5) var(--space-3);display:flex;flex-direction:column;gap:var(--space-6);position:sticky;top:0;height:100vh;}
+  .brand{display:flex;align-items:center;gap:var(--space-3);padding:0 var(--space-2);}
+  .brand-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#1565c0,#2e90ff);display:grid;place-items:center;font-weight:800;color:#fff;}
+  .brand-name{font-weight:700;color:#fff;font-size:15px;}.brand-sub{font-size:11px;color:#7e8aa6;}
+  .nav{display:flex;flex-direction:column;gap:var(--space-1);}
+  .nav-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#66738f;padding:0 var(--space-2) var(--space-2);}
+  .nav a{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3);border-radius:9px;color:#c8d2e6;text-decoration:none;font-weight:500;}
+  .nav a:hover{background:rgba(255,255,255,.06);color:#fff;}.nav a.active{background:var(--accent);color:#fff;}
+  .nav .ico{width:18px;text-align:center;}
+  .sidebar-foot{margin-top:auto;display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3);border-top:1px solid rgba(255,255,255,.08);}
+  .avatar{width:32px;height:32px;border-radius:50%;background:#2e90ff;color:#fff;display:grid;place-items:center;font-weight:700;}
+  .main{display:flex;flex-direction:column;min-width:0;}
+  .toolbar{display:flex;align-items:center;gap:var(--space-4);padding:var(--space-4) var(--space-6);background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5;}
+  .toolbar h1{font-size:18px;margin:0;}.crumbs{color:var(--muted);font-size:12px;}
+  .seg{margin-left:auto;display:flex;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+  .seg button{border:0;background:var(--panel);padding:var(--space-2) var(--space-3);font:inherit;font-weight:600;color:var(--muted);cursor:pointer;}
+  .seg button.active{background:var(--accent);color:#fff;}
+  .btn{display:inline-flex;align-items:center;gap:var(--space-2);border:1px solid var(--border);background:var(--panel);color:var(--ink);padding:var(--space-2) var(--space-4);border-radius:10px;font:inherit;font-weight:600;cursor:pointer;text-decoration:none;}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;}.btn-sm{padding:var(--space-1) var(--space-3);font-size:12px;}
+  .kebab{border:0;background:transparent;color:var(--faint);cursor:pointer;font-size:18px;}
+  .content{padding:var(--space-6);display:flex;flex-direction:column;gap:var(--space-5);max-width:1320px;width:100%;}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-5);}
+  .kpi{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:var(--space-5);box-shadow:var(--shadow);}
+  .kpi .label{color:var(--muted);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+  .kpi .value{font-size:26px;font-weight:800;margin-top:var(--space-2);letter-spacing:-.02em;}
+  .kpi .spark{margin-top:var(--space-2);}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+  .card-head{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-5) var(--space-5) var(--space-4);}
+  .card-head h2{font-size:15px;margin:0;}.card-head .sub{color:var(--muted);font-size:12px;}
+  .card-head .actions{margin-left:auto;display:flex;gap:var(--space-2);align-items:center;}
+  .card-body{padding:0 var(--space-5) var(--space-5);}
+  .charts{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:var(--space-5);align-items:start;}
+  .charts2{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--space-5);}
+  .legend{display:flex;gap:var(--space-4);flex-wrap:wrap;font-size:12px;color:var(--muted);}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle;}
+  .barrow{display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-3);font-size:13px;}
+  .barrow .name{width:64px;color:var(--ink);font-weight:600;}
+  .barrow .track{flex:1;height:10px;background:var(--bg);border-radius:999px;overflow:hidden;}
+  .barrow .track>i{display:block;height:100%;border-radius:999px;}
+  .barrow .num{width:40px;text-align:right;color:var(--muted);}
+  table{width:100%;border-collapse:collapse;}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:var(--space-3);border-bottom:1px solid var(--border);}
+  td{padding:var(--space-3);border-bottom:1px solid var(--border);}
+  tr:last-child td{border-bottom:0;}tr:hover td{background:#fafbfe;}
+  .fname{display:flex;align-items:center;gap:var(--space-3);font-weight:600;}
+  .ftype{width:28px;height:28px;border-radius:7px;display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff;}
+  .t-pdf{background:#d4453b;}.t-zip{background:#6b54c6;}.t-img{background:#0c7a43;}.t-doc{background:#1565c0;}.t-xls{background:#137a4d;}
+  .row-actions a{color:var(--accent);text-decoration:none;font-weight:600;font-size:13px;}
+  @media(max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr);}.charts,.charts2{grid-template-columns:1fr;}}
+  @media(max-width:720px){.app{grid-template-columns:1fr;}.sidebar{display:none;}.kpis{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">L</div><div><div class="brand-name">LAN File Server</div><div class="brand-sub">office.local</div></div></div>
+    <nav class="nav">
+      <div class="nav-label">Workspace</div>
+      <a class="active" href="#"><span class="ico">▣</span> Dashboard</a>
+      <a href="#"><span class="ico">🗂</span> Files</a>
+      <a href="#"><span class="ico">📌</span> Bulletin</a>
+      <a href="#"><span class="ico">👥</span> Members</a>
+      <div class="nav-label" style="margin-top:var(--space-4)">System</div>
+      <a href="#"><span class="ico">⚙</span> Settings</a>
+    </nav>
+    <div class="sidebar-foot"><div class="avatar">N</div><div><div style="color:#fff;font-weight:600;font-size:13px">Nelson</div><div style="font-size:11px;color:#7e8aa6">Sign out</div></div></div>
+  </aside>
+
+  <div class="main">
+    <header class="toolbar">
+      <div><div class="crumbs">Workspace / Dashboard</div><h1>Operational Overview</h1></div>
+      <div class="seg"><button class="active">7 days</button><button>30 days</button><button>All</button></div>
+      <button class="btn btn-primary">↑ Upload File</button>
+    </header>
+
+    <div class="content">
+      <!-- KPI row with sparklines -->
+      <section class="kpis">
+        <div class="kpi"><div class="label">Total Files</div><div class="value">1,284</div>
+          <svg class="spark" width="100%" height="28" viewBox="0 0 120 28" preserveAspectRatio="none"><polyline fill="none" stroke="#1565c0" stroke-width="2" points="0,22 20,18 40,20 60,12 80,14 100,6 120,4"/></svg></div>
+        <div class="kpi"><div class="label">Storage Used</div><div class="value">18.4 <span style="font-size:14px;color:var(--muted)">/ 50 GB</span></div>
+          <div class="track" style="height:8px;background:var(--bg);border-radius:999px;margin-top:8px;overflow:hidden"><i style="display:block;height:100%;width:37%;background:linear-gradient(90deg,#1565c0,#2e90ff);border-radius:999px"></i></div></div>
+        <div class="kpi"><div class="label">Uploads / wk</div><div class="value">36</div>
+          <svg class="spark" width="100%" height="28" viewBox="0 0 120 28" preserveAspectRatio="none"><polyline fill="none" stroke="#0c7a43" stroke-width="2" points="0,18 20,20 40,10 60,16 80,8 100,12 120,6"/></svg></div>
+        <div class="kpi"><div class="label">Active Members</div><div class="value">8</div>
+          <div style="margin-top:10px;font-size:12px;color:var(--ok);font-weight:600">● 5 online now</div></div>
+      </section>
+
+      <!-- Chart row 1: uploads over time + file type donut -->
+      <section class="charts">
+        <div class="card">
+          <div class="card-head"><div><h2>Uploads Over Time</h2><span class="sub">Files added per day · last 14 days</span></div>
+            <div class="actions"><span class="legend"><span><i style="background:#1565c0"></i>Uploads</span></span><button class="kebab">⋯</button></div></div>
+          <div class="card-body">
+            <svg width="100%" height="200" viewBox="0 0 560 200" preserveAspectRatio="none">
+              <g stroke="#eef1f6" stroke-width="1">
+                <line x1="0" y1="40" x2="560" y2="40"/><line x1="0" y1="90" x2="560" y2="90"/><line x1="0" y1="140" x2="560" y2="140"/><line x1="0" y1="190" x2="560" y2="190"/>
+              </g>
+              <!-- bars -->
+              <g fill="#1565c0">
+                <rect x="10" y="120" width="26" height="70" rx="3"/><rect x="50" y="100" width="26" height="90" rx="3"/>
+                <rect x="90" y="135" width="26" height="55" rx="3"/><rect x="130" y="80" width="26" height="110" rx="3"/>
+                <rect x="170" y="60" width="26" height="130" rx="3"/><rect x="210" y="110" width="26" height="80" rx="3"/>
+                <rect x="250" y="95" width="26" height="95" rx="3"/><rect x="290" y="50" width="26" height="140" rx="3"/>
+                <rect x="330" y="70" width="26" height="120" rx="3"/><rect x="370" y="40" width="26" height="150" rx="3"/>
+                <rect x="410" y="90" width="26" height="100" rx="3"/><rect x="450" y="65" width="26" height="125" rx="3"/>
+                <rect x="490" y="30" width="26" height="160" rx="3"/><rect x="530" y="55" width="26" height="135" rx="3"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div><h2>By File Type</h2><span class="sub">Share of storage</span></div><button class="kebab">⋯</button></div>
+          <div class="card-body" style="display:flex;align-items:center;gap:var(--space-5)">
+            <svg width="120" height="120" viewBox="0 0 42 42">
+              <circle cx="21" cy="21" r="15.915" fill="none" stroke="#eef1f6" stroke-width="6"/>
+              <!-- segments: PDF 35, ZIP 28, IMG 18, XLS 12, DOC 7 -->
+              <circle cx="21" cy="21" r="15.915" fill="none" stroke="#d4453b" stroke-width="6" stroke-dasharray="35 65" stroke-dashoffset="25"/>
+              <circle cx="21" cy="21" r="15.915" fill="none" stroke="#6b54c6" stroke-width="6" stroke-dasharray="28 72" stroke-dashoffset="-10"/>
+              <circle cx="21" cy="21" r="15.915" fill="none" stroke="#0c7a43" stroke-width="6" stroke-dasharray="18 82" stroke-dashoffset="-38"/>
+              <circle cx="21" cy="21" r="15.915" fill="none" stroke="#137a4d" stroke-width="6" stroke-dasharray="12 88" stroke-dashoffset="-56"/>
+              <circle cx="21" cy="21" r="15.915" fill="none" stroke="#1565c0" stroke-width="6" stroke-dasharray="7 93" stroke-dashoffset="-68"/>
+            </svg>
+            <div class="legend" style="flex-direction:column;gap:var(--space-2)">
+              <span><i style="background:#d4453b"></i>PDF · 35%</span>
+              <span><i style="background:#6b54c6"></i>ZIP · 28%</span>
+              <span><i style="background:#0c7a43"></i>Images · 18%</span>
+              <span><i style="background:#137a4d"></i>Sheets · 12%</span>
+              <span><i style="background:#1565c0"></i>Docs · 7%</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Chart row 2: top uploaders + recent files -->
+      <section class="charts2">
+        <div class="card">
+          <div class="card-head"><div><h2>Top Uploaders</h2><span class="sub">By file count</span></div><button class="kebab">⋯</button></div>
+          <div class="card-body">
+            <div class="barrow"><span class="name">Nelson</span><span class="track"><i style="width:90%;background:#1565c0"></i></span><span class="num">412</span></div>
+            <div class="barrow"><span class="name">Amy</span><span class="track"><i style="width:74%;background:#2e90ff"></i></span><span class="num">338</span></div>
+            <div class="barrow"><span class="name">Chen</span><span class="track"><i style="width:48%;background:#5aa9ff"></i></span><span class="num">221</span></div>
+            <div class="barrow"><span class="name">Wei</span><span class="track"><i style="width:31%;background:#8cc4ff"></i></span><span class="num">142</span></div>
+            <div class="barrow"><span class="name">Lin</span><span class="track"><i style="width:18%;background:#b9dbff"></i></span><span class="num">83</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div><h2>Recent Files</h2><span class="sub">Latest uploads</span></div><a class="btn btn-sm" href="#">View all</a></div>
+          <div class="card-body">
+            <table>
+              <tbody>
+                <tr><td><div class="fname"><span class="ftype t-pdf">PDF</span> Q2-report.pdf</div></td><td>2.4 MB</td><td>2h</td><td class="row-actions"><a href="#">Get</a></td></tr>
+                <tr><td><div class="fname"><span class="ftype t-zip">ZIP</span> firmware-v3.zip</div></td><td>48.1 MB</td><td>5h</td><td class="row-actions"><a href="#">Get</a></td></tr>
+                <tr><td><div class="fname"><span class="ftype t-img">IMG</span> floorplan.png</div></td><td>880 KB</td><td>1d</td><td class="row-actions"><a href="#">Get</a></td></tr>
+                <tr><td><div class="fname"><span class="ftype t-xls">XLS</span> inventory.xlsx</div></td><td>312 KB</td><td>1d</td><td class="row-actions"><a href="#">Get</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+</body>
+</html>
