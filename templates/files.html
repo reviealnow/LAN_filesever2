@@ -94,7 +94,7 @@
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
                   </a>
                   {% if session.get('user_id') == f.uploaded_by %}
-                  <form class="inline" action="{{ url_for('remove_file', file_id=f.id) }}" method="post">
+                  <form class="inline" action="{{ url_for('remove_file', file_id=f.id) }}" method="post" onsubmit="return confirm('Delete “{{ f.filename }}”? This cannot be undone.');">
                     <button class="icon-btn danger" type="submit" title="Delete" aria-label="Delete {{ f.filename }}">
                       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
                     </button>
