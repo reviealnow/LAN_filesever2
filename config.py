@@ -1,3 +1,5 @@
+import os
+import secrets
 from pathlib import Path
 
 
@@ -8,7 +10,10 @@ DATABASE_PATH = INSTANCE_DIR / "lan_fileserver.db"
 
 
 class Config:
-    SECRET_KEY = "change-me-in-production"
+    # Prefer an explicit SECRET_KEY from the environment (set this in
+    # production so sessions survive restarts). Fall back to a random
+    # per-process key so the old hardcoded default is never used.
+    SECRET_KEY = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
     DATABASE = DATABASE_PATH
     UPLOAD_FOLDER = UPLOAD_FOLDER
     MAX_CONTENT_LENGTH = 50 * 1024 * 1024  # 50 MB
