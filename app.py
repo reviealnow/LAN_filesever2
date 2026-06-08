@@ -8,7 +8,53 @@ from auth import auth_bp, login_required
 from bulletin_service import create_comment, create_post, list_posts
 from config import Config
 from db import close_db, init_db, query_one
-from file_service import delete_file, get_file_by_id, list_files, save_uploaded_file
+from file_service import (
+    delete_file,
+    files_by_type,
+    get_file_by_id,
+    list_files,
+    save_uploaded_file,
+    top_uploaders,
+    uploads_per_day,
+)
+
+
+# Extension -> swatch colour for the "By File Type" donut (mirrors the
+# .ftype-* classes in styles.css). Unknown types cycle the fallback palette.
+EXT_COLORS = {
+    "pdf": "#d4453b",
+    "zip": "#6b54c6", "pcap": "#6b54c6", "pcapng": "#6b54c6",
+    "png": "#0c7a43", "jpg": "#0c7a43", "jpeg": "#0c7a43", "gif": "#0c7a43",
+    "csv": "#137a4d", "xlsx": "#137a4d",
+    "json": "#1565c0", "log": "#1565c0", "txt": "#1565c0",
+}
+FALLBACK_PALETTE = ["#1565c0", "#2e90ff", "#5aa9ff", "#8cc4ff", "#b9dbff", "#9aa4b8"]
+UPLOADER_SHADES = ["#1565c0", "#2e90ff", "#5aa9ff", "#8cc4ff", "#b9dbff"]
+
+
+def _build_charts():
+    """Assemble JSON-serializable chart data for the dashboard."""
+    file_types = files_by_type()
+    total_size = sum(t["size"] for t in file_types) or 1
+    fallback = 0
+    for t in file_types:
+        color = EXT_COLORS.get(t["ext"])
+        if color is None:
+            color = FALLBACK_PALETTE[fallback % len(FALLBACK_PALETTE)]
+            fallback += 1
+        t["color"] = color
+        t["pct_exact"] = round(t["size"] / total_size * 100, 2)
+        t["pct"] = round(t["size"] / total_size * 100)
+
+    uploaders = top_uploaders(5)
+    for i, u in enumerate(uploaders):
+        u["color"] = UPLOADER_SHADES[i % len(UPLOADER_SHADES)]
+
+    return {
+        "uploads": uploads_per_day(14),
+        "file_types": file_types,
+        "uploaders": uploaders,
+    }
 
 
 def _humanize_bytes(num_bytes: int) -> str:
@@ -93,6 +139,7 @@ def create_app() -> Flask:
             accept_attr=accept_attr,
             stats=stats,
             activity=_build_activity(files, bulletin_posts),
+            charts=_build_charts(),
         )
 
     @app.route("/upload", methods=["POST"])
