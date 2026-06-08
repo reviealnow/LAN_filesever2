@@ -7,8 +7,40 @@ from werkzeug.exceptions import RequestEntityTooLarge
 from auth import auth_bp, login_required
 from bulletin_service import create_comment, create_post, list_posts
 from config import Config
-from db import close_db, init_db
+from db import close_db, init_db, query_one
 from file_service import delete_file, get_file_by_id, list_files, save_uploaded_file
+
+
+def _humanize_bytes(num_bytes: int) -> str:
+    size = float(num_bytes or 0)
+    for unit in ("B", "KB", "MB", "GB"):
+        if size < 1024 or unit == "GB":
+            return f"{size:.0f} {unit}" if unit == "B" else f"{size:.1f} {unit}"
+        size /= 1024
+    return f"{size:.1f} GB"
+
+
+def _build_activity(files, bulletin_posts, limit: int = 6):
+    """Merge recent file uploads and bulletin posts/replies into one feed."""
+    items = []
+    for f in files:
+        items.append({"actor": f["username"], "action": "uploaded", "target": f["filename"], "ts": f["uploaded_at"]})
+    for post in bulletin_posts:
+        items.append({"actor": post["username"], "action": "posted", "target": post["title"], "ts": post["created_at"]})
+        for comment in post["comments"]:
+            items.append({"actor": comment["username"], "action": "replied on", "target": post["title"], "ts": comment["created_at"]})
+            for reply in comment["replies"]:
+                items.append({"actor": reply["username"], "action": "replied on", "target": post["title"], "ts": reply["created_at"]})
+    items.sort(key=lambda item: item["ts"] or "", reverse=True)
+    return items[:limit]
+
+
+def _count_replies(bulletin_posts) -> int:
+    total = 0
+    for post in bulletin_posts:
+        for comment in post["comments"]:
+            total += 1 + len(comment["replies"])
+    return total
 
 
 def create_app() -> Flask:
@@ -43,12 +75,24 @@ def create_app() -> Flask:
         allowed_exts = sorted(app.config["ALLOWED_EXTENSIONS"])
         allowed_exts_label = ", ".join(f".{ext}" for ext in allowed_exts)
         accept_attr = ",".join(f".{ext}" for ext in allowed_exts)
+
+        member_row = query_one("SELECT COUNT(*) AS count FROM users")
+        stats = {
+            "total_files": len(files),
+            "storage_used": _humanize_bytes(sum(f["size"] for f in files)),
+            "active_threads": len(bulletin_posts),
+            "total_replies": _count_replies(bulletin_posts),
+            "members": member_row["count"] if member_row else 0,
+        }
+
         return render_template(
             "files.html",
             files=files,
             bulletin_posts=bulletin_posts,
             allowed_exts_label=allowed_exts_label,
             accept_attr=accept_attr,
+            stats=stats,
+            activity=_build_activity(files, bulletin_posts),
         )
 
     @app.route("/upload", methods=["POST"])

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mockup A — Spacing Pass</title>
+<style>
+  :root {
+    --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
+    --space-5:24px; --space-6:32px; --space-7:48px;
+    --bg:#f4f6fa; --panel:#fff; --ink:#1b2333; --muted:#687389; --faint:#9aa4b8;
+    --accent:#1565c0; --danger:#b3261e; --border:#e3e8f0;
+    --shadow:0 1px 2px rgba(20,30,55,.04), 0 6px 20px rgba(20,30,55,.06);
+    --radius:14px;
+    --sticky:#fdf3c4; --sticky-edge:#ecd98a;
+  }
+  *{box-sizing:border-box;} html,body{margin:0;}
+  body{background:var(--bg);color:var(--ink);font-family:"Inter","Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.5;}
+
+  /* thin top header (NOT a sidebar — that's the A vs B difference) */
+  .site-header{background:#0e1b33;color:#fff;}
+  .header-inner{max-width:1280px;margin:0 auto;padding:var(--space-4) var(--space-6);display:flex;align-items:center;gap:var(--space-4);}
+  .brand{display:flex;align-items:center;gap:var(--space-3);}
+  .brand-mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#1565c0,#2e90ff);display:grid;place-items:center;font-weight:800;}
+  .brand-name{font-weight:700;}
+  .header-inner nav{margin-left:var(--space-5);display:flex;gap:var(--space-2);}
+  .header-inner nav a{color:#c8d2e6;text-decoration:none;padding:var(--space-2) var(--space-3);border-radius:8px;font-weight:500;}
+  .header-inner nav a.active{background:rgba(255,255,255,.12);color:#fff;}
+  .header-right{margin-left:auto;display:flex;align-items:center;gap:var(--space-3);}
+  .avatar{width:30px;height:30px;border-radius:50%;background:#2e90ff;display:grid;place-items:center;font-weight:700;}
+
+  .container{max-width:1280px;margin:0 auto;padding:var(--space-6);}
+
+  /* card chrome (shared, consistent) */
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,460px);gap:var(--space-5);align-items:start;}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:var(--space-5);}
+  .card-head{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-5) var(--space-5) var(--space-4);}
+  .card-head h2{font-size:15px;margin:0;}
+  .card-head .sub{color:var(--muted);font-size:12px;}
+  .card-head .actions{margin-left:auto;display:flex;gap:var(--space-2);}
+  .card-body{padding:0 var(--space-5) var(--space-5);}
+  .btn{display:inline-flex;align-items:center;gap:var(--space-2);border:1px solid var(--border);background:var(--panel);color:var(--ink);padding:var(--space-2) var(--space-4);border-radius:10px;font:inherit;font-weight:600;cursor:pointer;text-decoration:none;}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .btn-sm{padding:var(--space-1) var(--space-3);font-size:12px;}
+  .kebab{border:0;background:transparent;color:var(--faint);cursor:pointer;font-size:18px;}
+
+  /* upload */
+  .upload{display:flex;gap:var(--space-3);align-items:center;}
+  .upload .drop{flex:1;border:1.5px dashed var(--border);border-radius:10px;padding:var(--space-4);color:var(--muted);text-align:center;}
+
+  table{width:100%;border-collapse:collapse;}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:var(--space-3);border-bottom:1px solid var(--border);}
+  td{padding:var(--space-3);border-bottom:1px solid var(--border);}
+  tr:last-child td{border-bottom:0;} tr:hover td{background:#fafbfe;}
+  .fname{display:flex;align-items:center;gap:var(--space-3);font-weight:600;}
+  .ftype{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-size:11px;font-weight:800;color:#fff;}
+  .t-pdf{background:#d4453b;}.t-zip{background:#6b54c6;}.t-img{background:#0c7a43;}.t-doc{background:#1565c0;}.t-xls{background:#137a4d;}
+  .row-actions a{color:var(--accent);text-decoration:none;font-weight:600;font-size:13px;}
+  .row-actions a.danger{color:var(--danger);margin-left:var(--space-3);}
+
+  /* bulletin: corkboard skin KEPT but spacing normalized */
+  .board{background:linear-gradient(180deg,#f7d945,#efc936);border-color:#d7b22b;}
+  .board .card-head h2,.board .card-head .sub{color:#5a4300;}
+  .sticky-form{background:rgba(255,250,214,.8);border:1px solid rgba(127,101,11,.25);border-radius:12px;padding:var(--space-4);margin-bottom:var(--space-4);}
+  .sticky-form input,.sticky-form textarea{width:100%;padding:var(--space-3);border:1px solid rgba(127,101,11,.25);border-radius:8px;font:inherit;margin-bottom:var(--space-2);}
+  .note{position:relative;background:var(--sticky);border:1px solid var(--sticky-edge);border-radius:12px;padding:var(--space-4);margin-bottom:var(--space-4);box-shadow:0 8px 18px rgba(102,80,14,.18);transform:rotate(-1deg);}
+  .note:nth-child(even){transform:rotate(1deg);background:#fbeea0;}
+  .note .pin{position:absolute;top:10px;right:12px;width:12px;height:12px;border-radius:50%;background:#c74231;}
+  .note h3{margin:0 0 var(--space-1);font-size:14px;color:#3f2b00;}
+  .note p{margin:0;color:#5b4a28;font-size:13px;}
+  .note .meta{margin-top:var(--space-2);font-size:11px;color:#9a854f;}
+  .thread-nav{display:flex;justify-content:space-between;align-items:center;margin-top:var(--space-3);color:#5a4300;font-weight:700;}
+
+  @media(max-width:980px){.grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand"><div class="brand-mark">L</div><div class="brand-name">LAN File Server</div></div>
+      <nav>
+        <a class="active" href="#">Files</a>
+        <a href="#">Bulletin</a>
+        <a href="#">Members</a>
+      </nav>
+      <div class="header-right">
+        <span style="color:#c8d2e6">Nelson</span>
+        <div class="avatar">N</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="grid">
+      <!-- LEFT: upload + files (same layout as today, restyled) -->
+      <div>
+        <div class="card">
+          <div class="card-head">
+            <div><h2>File Sharing</h2><span class="sub">Max 50 MB · pdf, zip, png, docx, xlsx…</span></div>
+            <div class="actions"><button class="btn btn-primary btn-sm">↑ Upload</button></div>
+          </div>
+          <div class="card-body">
+            <div class="upload"><div class="drop">Drag a file here or click to browse</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div><h2>Shared Files</h2><span class="sub">5 files</span></div>
+            <div class="actions"><button class="btn btn-sm">Filter</button><button class="kebab">⋯</button></div>
+          </div>
+          <div class="card-body">
+            <table>
+              <thead><tr><th>Filename</th><th>Size</th><th>Uploader</th><th>Uploaded</th><th></th></tr></thead>
+              <tbody>
+                <tr><td><div class="fname"><span class="ftype t-pdf">PDF</span> Q2-report.pdf</div></td><td>2.4 MB</td><td>Amy</td><td>2h ago</td><td class="row-actions"><a href="#">Download</a></td></tr>
+                <tr><td><div class="fname"><span class="ftype t-zip">ZIP</span> firmware-v3.zip</div></td><td>48.1 MB</td><td>Nelson</td><td>5h ago</td><td class="row-actions"><a href="#">Download</a><a class="danger" href="#">Delete</a></td></tr>
+                <tr><td><div class="fname"><span class="ftype t-img">IMG</span> floorplan.png</div></td><td>880 KB</td><td>Chen</td><td>Yesterday</td><td class="row-actions"><a href="#">Download</a></td></tr>
+                <tr><td><div class="fname"><span class="ftype t-xls">XLS</span> inventory.xlsx</div></td><td>312 KB</td><td>Amy</td><td>Yesterday</td><td class="row-actions"><a href="#">Download</a></td></tr>
+                <tr><td><div class="fname"><span class="ftype t-doc">DOC</span> meeting-notes.docx</div></td><td>54 KB</td><td>Nelson</td><td>2 days ago</td><td class="row-actions"><a href="#">Download</a><a class="danger" href="#">Delete</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: corkboard KEPT -->
+      <div class="card board">
+        <div class="card-head"><div><h2>📌 Sticky Notes</h2><span class="sub">Post updates and reply on the board</span></div></div>
+        <div class="card-body">
+          <div class="sticky-form">
+            <input placeholder="Write a short headline" />
+            <textarea rows="3" placeholder="Share an update, question, or reminder."></textarea>
+            <button class="btn btn-sm" style="background:#5a4300;color:#fff;border:0;">Pin Note</button>
+          </div>
+          <div class="note"><span class="pin"></span><h3>Server maintenance Fri 6pm</h3><p>Uploads paused ~30 min while we expand storage.</p><div class="meta">Nelson · 3 replies</div></div>
+          <div class="note"><span class="pin"></span><h3>Please tag firmware builds</h3><p>Use vX.Y in the filename so we can sort releases.</p><div class="meta">Amy · 1 reply</div></div>
+          <div class="thread-nav"><button class="btn btn-sm">&lt;&lt; Prev</button><span>Thread 1 of 12</span><button class="btn btn-sm">Next &gt;&gt;</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

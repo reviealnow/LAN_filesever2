@@ -1,189 +1,237 @@
 {% extends "base.html" %}
-{% block title %}Files | LAN File Server{% endblock %}
+{% block title %}Dashboard | LAN File Server{% endblock %}
+{% block crumbs %}Workspace / Dashboard{% endblock %}
+{% block page_title %}Operational Overview{% endblock %}
+
+{% block toolbar_actions %}
+<div class="toolbar-actions">
+  <div class="search">
+    <span class="search-ico">🔍</span>
+    <input type="search" placeholder="Search files…" data-file-search aria-label="Search files" />
+  </div>
+  <a class="btn btn-primary" href="#upload">↑ Upload File</a>
+</div>
+{% endblock %}
+
 {% block content %}
-<div class="dashboard-grid">
-  <div class="files-column" data-files-column>
-    <section class="panel" data-upload-panel>
-      <h2>File Sharing</h2>
-      <p class="hint">Maximum upload size: 50 MB.</p>
-      <p class="hint">Accepted formats: {{ allowed_exts_label }}</p>
+<!-- KPI row -->
+<section class="kpis">
+  <div class="kpi">
+    <div class="kpi-label">Total Files</div>
+    <div class="kpi-value">{{ stats.total_files }}</div>
+    <div class="kpi-sub">in workspace</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Storage Used</div>
+    <div class="kpi-value">{{ stats.storage_used }}</div>
+    <div class="kpi-sub">across {{ stats.total_files }} file{{ '' if stats.total_files == 1 else 's' }}</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Active Threads</div>
+    <div class="kpi-value">{{ stats.active_threads }}</div>
+    <div class="kpi-sub">{{ stats.total_replies }} repl{{ 'y' if stats.total_replies == 1 else 'ies' }}</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Members</div>
+    <div class="kpi-value">{{ stats.members }}</div>
+    <div class="kpi-sub">registered</div>
+  </div>
+</section>
 
-      <form class="upload-form" action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept="{{ accept_attr }}" required />
-        <button type="submit">Upload</button>
-      </form>
-    </section>
-
-    <section class="panel files-panel" data-files-panel>
-      <h3>Shared Files</h3>
-      <div class="table-wrap files-table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Filename</th>
-              <th>Size</th>
-              <th>Uploader</th>
-              <th>Uploaded At</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for f in files %}
-            <tr>
-              <td>{{ f.filename }}</td>
-              <td>{{ "%.2f"|format(f.size / 1024) }} KB</td>
-              <td>{{ f.username }}</td>
-              <td>{{ f.uploaded_at }}</td>
-              <td class="actions-cell">
-                <a class="button button-small" href="{{ url_for('download_file', file_id=f.id) }}">Download</a>
-                {% if session.get('user_id') == f.uploaded_by %}
-                <form class="inline" action="{{ url_for('remove_file', file_id=f.id) }}" method="post">
-                  <button class="button button-danger button-small" type="submit">Delete</button>
-                </form>
-                {% endif %}
-              </td>
-            </tr>
-            {% else %}
-            <tr>
-              <td colspan="5">No files uploaded yet.</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+<section class="grid">
+  <!-- LEFT COLUMN: upload + shared files -->
+  <div class="grid-col">
+    <div class="card" id="upload">
+      <div class="card-head">
+        <div class="card-titles">
+          <h2>File Sharing</h2>
+          <span class="card-sub">Max 50 MB · {{ allowed_exts_label }}</span>
+        </div>
       </div>
-    </section>
+      <div class="card-body">
+        <form class="upload-form" action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+          <input type="file" name="file" accept="{{ accept_attr }}" required />
+          <button class="btn btn-primary" type="submit">Upload</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card" id="files">
+      <div class="card-head">
+        <div class="card-titles">
+          <h2>Shared Files</h2>
+          <span class="card-sub">{{ files|length }} file{{ '' if files|length == 1 else 's' }} · newest first</span>
+        </div>
+      </div>
+      <div class="card-body card-body-flush">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Filename</th>
+                <th>Size</th>
+                <th>Uploader</th>
+                <th>Uploaded</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for f in files %}
+              <tr data-file-row data-filename="{{ f.filename }}">
+                <td>
+                  <div class="fname">
+                    <span class="ftype ftype-{{ f.filename.rsplit('.', 1)[1]|lower if '.' in f.filename else 'bin' }}">
+                      {{ (f.filename.rsplit('.', 1)[1]|upper)[:3] if '.' in f.filename else 'BIN' }}
+                    </span>
+                    <span class="fname-text">{{ f.filename }}</span>
+                  </div>
+                </td>
+                <td>{{ "%.1f"|format(f.size / 1024) }} KB</td>
+                <td>{{ f.username }}</td>
+                <td class="nowrap">{{ f.uploaded_at }}</td>
+                <td class="row-actions nowrap">
+                  <a class="icon-btn" href="{{ url_for('download_file', file_id=f.id) }}" title="Download" aria-label="Download {{ f.filename }}">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+                  </a>
+                  {% if session.get('user_id') == f.uploaded_by %}
+                  <form class="inline" action="{{ url_for('remove_file', file_id=f.id) }}" method="post" onsubmit="return confirm('Delete “{{ f.filename }}”? This cannot be undone.');">
+                    <button class="icon-btn danger" type="submit" title="Delete" aria-label="Delete {{ f.filename }}">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                    </button>
+                  </form>
+                  {% endif %}
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="5" class="empty-cell">No files uploaded yet.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <section class="bulletin-board panel" data-bulletin-board>
-    <div class="bulletin-board-header">
-      <div class="board-topic">
-        <span class="board-badge">Sticky Notes</span>
-        <p class="hint">Post updates and reply directly on the board.</p>
+  <!-- RIGHT COLUMN: activity + bulletin -->
+  <div class="grid-col">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-titles">
+          <h2>Recent Activity</h2>
+          <span class="card-sub">Latest across files & bulletin</span>
+        </div>
       </div>
-    </div>
-
-    <form class="sticky-form" action="{{ url_for('create_bulletin_post') }}" method="post">
-      <label for="post-title">Post title</label>
-      <input id="post-title" type="text" name="title" maxlength="120" placeholder="Write a short headline" required />
-
-      <label for="post-body">Post content</label>
-      <textarea id="post-body" name="body" rows="4" maxlength="1000" placeholder="Share an update, question, or reminder." required></textarea>
-      <button type="submit">Pin Note</button>
-    </form>
-
-    <div class="thread-nav">
-      <button class="button button-small button-secondary thread-nav-button" type="button" data-thread-nav="prev">&lt;&lt; Prev</button>
-      <p class="thread-status" data-thread-status>
-        {% if bulletin_posts %}
-        Thread 1 of {{ bulletin_posts|length }}
-        {% else %}
-        No threads yet
-        {% endif %}
-      </p>
-      <button class="button button-small button-secondary thread-nav-button" type="button" data-thread-nav="next">Next &gt;&gt;</button>
-    </div>
-
-    <div class="sticky-grid" data-thread-board>
-      {% for post in bulletin_posts %}
-      <article
-        class="sticky-note{% if not loop.first %} is-hidden{% endif %}"
-        data-thread-card
-        data-thread-index="{{ loop.index0 }}"
-        style="--rest-rotation: {% if loop.index0 % 2 == 0 %}-1deg{% else %}1deg{% endif %};"
-      >
-        <div class="sticky-note-pin"></div>
-        <header class="sticky-note-header">
-          <div class="sticky-note-author">
-            <span class="author-avatar">{{ post.username[:1]|upper }}</span>
-            <div>
-              <p class="author-label">Posted by</p>
-              <p class="author-name">{{ post.username }}</p>
+      <div class="card-body">
+        <div class="feed">
+          {% for item in activity %}
+          <div class="feed-item">
+            <div class="feed-dot">{{ item.actor[:1]|upper }}</div>
+            <div class="feed-text">
+              <span class="feed-actor">{{ item.actor }}</span> {{ item.action }}
+              <span class="feed-target">{{ item.target }}</span>
+              <div class="feed-meta">{{ item.ts }}</div>
             </div>
           </div>
-          <h3>{{ post.title }}</h3>
-          <p class="sticky-meta">{{ post.created_at }}</p>
-        </header>
+          {% else %}
+          <p class="hint">No activity yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
 
-        <p class="sticky-body">{{ post.body }}</p>
+    <div class="card bulletin-card" id="bulletin" data-bulletin-board>
+      <div class="card-head">
+        <div class="card-titles">
+          <h2>📌 Bulletin</h2>
+          <span class="card-sub">Post updates and reply on the board</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <form class="sticky-form" action="{{ url_for('create_bulletin_post') }}" method="post">
+          <input type="text" name="title" maxlength="120" placeholder="Write a short headline" required />
+          <textarea name="body" rows="3" maxlength="1000" placeholder="Share an update, question, or reminder." required></textarea>
+          <button class="btn btn-primary" type="submit">Pin Note</button>
+        </form>
 
-        <section class="comment-thread">
-          <h4>Replies</h4>
+        <div class="thread-nav">
+          <button class="btn btn-sm btn-ghost thread-nav-button" type="button" data-thread-nav="prev">&lt;&lt; Prev</button>
+          <p class="thread-status" data-thread-status>
+            {% if bulletin_posts %}Thread 1 of {{ bulletin_posts|length }}{% else %}No threads yet{% endif %}
+          </p>
+          <button class="btn btn-sm btn-ghost thread-nav-button" type="button" data-thread-nav="next">Next &gt;&gt;</button>
+        </div>
 
-          {% if post.comments %}
-            {% for comment in post.comments %}
-            <div class="comment-card">
-              <p class="comment-meta">{{ comment.username }} replied on {{ comment.created_at }}</p>
-              <p>{{ comment.body }}</p>
-
-              {% for reply in comment.replies %}
-              <div class="reply-card">
-                <p class="comment-meta">{{ reply.username }} replied on {{ reply.created_at }}</p>
-                <p>{{ reply.body }}</p>
+        <div class="sticky-grid" data-thread-board>
+          {% for post in bulletin_posts %}
+          <article
+            class="sticky-note{% if not loop.first %} is-hidden{% endif %}"
+            data-thread-card
+            data-thread-index="{{ loop.index0 }}"
+          >
+            <header class="sticky-note-header">
+              <div class="sticky-note-author">
+                <span class="author-avatar">{{ post.username[:1]|upper }}</span>
+                <div>
+                  <p class="author-label">Posted by</p>
+                  <p class="author-name">{{ post.username }}</p>
+                </div>
               </div>
-              {% endfor %}
+              <h3>{{ post.title }}</h3>
+              <p class="sticky-meta">{{ post.created_at }}</p>
+            </header>
+
+            <p class="sticky-body">{{ post.body }}</p>
+
+            <section class="comment-thread">
+              <h4>Replies</h4>
+              {% if post.comments %}
+                {% for comment in post.comments %}
+                <div class="comment-card">
+                  <p class="comment-meta">{{ comment.username }} replied on {{ comment.created_at }}</p>
+                  <p>{{ comment.body }}</p>
+                  {% for reply in comment.replies %}
+                  <div class="reply-card">
+                    <p class="comment-meta">{{ reply.username }} replied on {{ reply.created_at }}</p>
+                    <p>{{ reply.body }}</p>
+                  </div>
+                  {% endfor %}
+                  <form class="reply-form" action="{{ url_for('create_bulletin_comment', post_id=post.id) }}" method="post">
+                    <input type="hidden" name="parent_comment_id" value="{{ comment.id }}" />
+                    <textarea name="body" rows="2" maxlength="600" placeholder="Reply to this comment" required></textarea>
+                    <button class="btn btn-sm" type="submit">Reply</button>
+                  </form>
+                </div>
+                {% endfor %}
+              {% else %}
+              <p class="hint">No replies yet. Start the thread.</p>
+              {% endif %}
 
               <form class="reply-form" action="{{ url_for('create_bulletin_comment', post_id=post.id) }}" method="post">
-                <input type="hidden" name="parent_comment_id" value="{{ comment.id }}" />
-                <textarea name="body" rows="2" maxlength="600" placeholder="Reply to this comment" required></textarea>
-                <button class="button button-small" type="submit">Reply</button>
+                <textarea name="body" rows="3" maxlength="600" placeholder="Add a reply to this post" required></textarea>
+                <button class="btn btn-sm" type="submit">Add Reply</button>
               </form>
-            </div>
-            {% endfor %}
+            </section>
+          </article>
           {% else %}
-          <p class="hint">No replies yet. Start the thread.</p>
-          {% endif %}
-
-          <form class="reply-form" action="{{ url_for('create_bulletin_comment', post_id=post.id) }}" method="post">
-            <textarea name="body" rows="3" maxlength="600" placeholder="Add a reply to this post" required></textarea>
-            <button class="button button-small" type="submit">Add Reply</button>
-          </form>
-        </section>
-      </article>
-      {% else %}
-      <div class="board-empty">
-        <h3>No notes on the board yet</h3>
-        <p>Post the first sticky note to start the conversation.</p>
+          <div class="board-empty">
+            <h3>No notes on the board yet</h3>
+            <p>Post the first sticky note to start the conversation.</p>
+          </div>
+          {% endfor %}
+        </div>
       </div>
-      {% endfor %}
     </div>
-  </section>
-</div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
 <script>
   window.addEventListener("load", function () {
-    var filesColumn = document.querySelector("[data-files-column]");
-    var uploadPanel = document.querySelector("[data-upload-panel]");
-    var filesPanel = document.querySelector("[data-files-panel]");
-    var bulletinBoard = document.querySelector("[data-bulletin-board]");
     var board = document.querySelector("[data-thread-board]");
-
-    function syncColumnHeights() {
-      if (!filesColumn || !uploadPanel || !filesPanel || !bulletinBoard) {
-        return;
-      }
-
-      if (window.innerWidth <= 980) {
-        filesColumn.style.height = "";
-        filesPanel.style.maxHeight = "";
-        return;
-      }
-
-      var boardHeight = bulletinBoard.offsetHeight;
-      var uploadHeight = uploadPanel.offsetHeight;
-      var filesStyles = window.getComputedStyle(filesPanel);
-      var filesMarginTop = parseFloat(filesStyles.marginTop) || 0;
-      var filesMarginBottom = parseFloat(filesStyles.marginBottom) || 0;
-      var remainingHeight = Math.max(boardHeight - uploadHeight - filesMarginTop - filesMarginBottom, 220);
-
-      filesColumn.style.height = boardHeight + "px";
-      filesPanel.style.maxHeight = remainingHeight + "px";
-    }
-
-    syncColumnHeights();
-    window.addEventListener("resize", syncColumnHeights);
-
-    if (!board) {
-      return;
-    }
+    if (!board) return;
 
     var cards = Array.from(board.querySelectorAll("[data-thread-card]"));
     var status = document.querySelector("[data-thread-status]");
@@ -191,67 +239,30 @@
     var nextButton = document.querySelector('[data-thread-nav="next"]');
 
     if (!cards.length) {
-      if (prevButton) {
-        prevButton.disabled = true;
-      }
-      if (nextButton) {
-        nextButton.disabled = true;
-      }
+      if (prevButton) prevButton.disabled = true;
+      if (nextButton) nextButton.disabled = true;
       return;
     }
 
     var activeIndex = 0;
-    var isAnimating = false;
 
     function updateStatus() {
-      if (status) {
-        status.textContent = "Thread " + (activeIndex + 1) + " of " + cards.length;
-      }
-      if (prevButton) {
-        prevButton.disabled = cards.length <= 1 || activeIndex === 0;
-      }
-      if (nextButton) {
-        nextButton.disabled = cards.length <= 1 || activeIndex === cards.length - 1;
-      }
-      window.requestAnimationFrame(syncColumnHeights);
+      if (status) status.textContent = "Thread " + (activeIndex + 1) + " of " + cards.length;
+      if (prevButton) prevButton.disabled = cards.length <= 1 || activeIndex === 0;
+      if (nextButton) nextButton.disabled = cards.length <= 1 || activeIndex === cards.length - 1;
     }
 
-    function showCard(nextIndex, direction) {
-      if (isAnimating || nextIndex === activeIndex || nextIndex < 0 || nextIndex >= cards.length) {
-        return;
-      }
-
-      isAnimating = true;
-      var current = cards[activeIndex];
-      var upcoming = cards[nextIndex];
-
-      current.classList.add(direction === "next" ? "turn-out-left" : "turn-out-right");
-      upcoming.classList.remove("is-hidden");
-      upcoming.classList.add(direction === "next" ? "turn-in-right" : "turn-in-left");
-
-      window.setTimeout(function () {
-        current.classList.add("is-hidden");
-        current.classList.remove("turn-out-left", "turn-out-right");
-        upcoming.classList.remove("turn-in-right", "turn-in-left");
-        activeIndex = nextIndex;
-        isAnimating = false;
-        updateStatus();
-      }, 520);
+    function showCard(nextIndex) {
+      if (nextIndex < 0 || nextIndex >= cards.length || nextIndex === activeIndex) return;
+      cards[activeIndex].classList.add("is-hidden");
+      cards[nextIndex].classList.remove("is-hidden");
+      activeIndex = nextIndex;
+      updateStatus();
     }
 
     updateStatus();
-
-    if (prevButton) {
-      prevButton.addEventListener("click", function () {
-        showCard(activeIndex - 1, "prev");
-      });
-    }
-
-    if (nextButton) {
-      nextButton.addEventListener("click", function () {
-        showCard(activeIndex + 1, "next");
-      });
-    }
+    if (prevButton) prevButton.addEventListener("click", function () { showCard(activeIndex - 1); });
+    if (nextButton) nextButton.addEventListener("click", function () { showCard(activeIndex + 1); });
   });
 </script>
 {% endblock %}

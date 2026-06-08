@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Download button options</title>
+<style>
+  :root{
+    --space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;
+    --panel:#fff;--ink:#1b2333;--muted:#687389;--faint:#9aa4b8;
+    --accent:#1565c0;--accent-weak:#e8f0fb;--danger:#b3261e;--danger-weak:#fce8e6;--border:#e3e8f0;
+    --shadow:0 1px 2px rgba(20,30,55,.04),0 6px 20px rgba(20,30,55,.06);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:#f4f6fa;color:var(--ink);font-family:"Inter","Segoe UI",system-ui,sans-serif;font-size:14px;padding:var(--space-6);}
+  h1{font-size:18px;margin:0 0 var(--space-2);}
+  .note{color:var(--muted);margin:0 0 var(--space-6);font-size:13px;}
+  .grid{display:grid;grid-template-columns:160px 1fr 1fr;gap:var(--space-4);align-items:center;max-width:720px;}
+  .grid .head{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;}
+  .label{font-weight:700;}
+  .label small{display:block;font-weight:400;color:var(--muted);font-size:12px;}
+  .cell{background:var(--panel);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);padding:var(--space-4);display:flex;gap:var(--space-2);align-items:center;justify-content:center;}
+  .pair{display:flex;gap:var(--space-2);}
+
+  /* base icon button shapes */
+  .ib{display:inline-grid;place-items:center;padding:0;border:1px solid var(--border);border-radius:8px;background:var(--panel);color:var(--muted);cursor:pointer;}
+  .ib svg{display:block;}
+
+  /* ---- CURRENT: 32x32 neutral outline, hover blue tint ---- */
+  .cur{width:32px;height:32px;}
+  .cur:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-weak);}
+  .cur.danger:hover{color:var(--danger);border-color:var(--danger);background:var(--danger-weak);}
+  .force-hover .cur{color:var(--accent);border-color:var(--accent);background:var(--accent-weak);}
+  .force-hover .cur.danger{color:var(--danger);border-color:var(--danger);background:var(--danger-weak);}
+
+  /* ---- OPTION A: Solid accent, compact 28x28, white icon ---- */
+  .a{width:28px;height:28px;border-color:var(--accent);background:var(--accent);color:#fff;}
+  .a:hover{background:#0f54a8;border-color:#0f54a8;}
+  .a.danger{border-color:var(--border);background:var(--panel);color:var(--muted);}
+  .a.danger:hover{color:var(--danger);border-color:var(--danger);background:var(--danger-weak);}
+  .force-hover .a{background:#0f54a8;border-color:#0f54a8;}
+  .force-hover .a.danger{color:var(--danger);border-color:var(--danger);background:var(--danger-weak);}
+
+  /* ---- OPTION B: Soft tint, 30x30, blue icon at rest, no border ---- */
+  .b{width:30px;height:30px;border-color:transparent;background:var(--accent-weak);color:var(--accent);}
+  .b:hover{background:var(--accent);color:#fff;}
+  .b.danger{background:var(--danger-weak);color:var(--danger);}
+  .b.danger:hover{background:var(--danger);color:#fff;}
+  .force-hover .b{background:var(--accent);color:#fff;}
+  .force-hover .b.danger{background:var(--danger);color:#fff;}
+
+  /* ---- OPTION C: Ghost accent, 30x30, no border, blue icon at rest ---- */
+  .c{width:30px;height:30px;border-color:transparent;background:transparent;color:var(--accent);}
+  .c:hover{background:var(--accent-weak);}
+  .c.danger{color:var(--danger);}
+  .c.danger:hover{background:var(--danger-weak);}
+  .force-hover .c{background:var(--accent-weak);}
+  .force-hover .c.danger{background:var(--danger-weak);}
+</style>
+</head>
+<body>
+  <h1>Download (＋ delete) button — size & colour options</h1>
+  <p class="note">Download icon on the left of each pair, delete (trash) on the right. Left column = resting state, right column = hover state.</p>
+
+  <div class="grid">
+    <div class="head">Variant</div>
+    <div class="head">Resting</div>
+    <div class="head">Hover</div>
+
+    <!-- Current -->
+    <div class="label">Current<small>32px · neutral outline, hover→blue</small></div>
+    <div class="cell"><span class="pair">
+      <a class="ib cur" title="Download"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></a>
+      <button class="ib cur danger" title="Delete"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>
+    </span></div>
+    <div class="cell force-hover"><span class="pair">
+      <a class="ib cur" title="Download"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></a>
+      <button class="ib cur danger" title="Delete"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>
+    </span></div>
+
+    <!-- Option A -->
+    <div class="label">A · Solid accent<small>28px · filled blue, white icon</small></div>
+    <div class="cell"><span class="pair">
+      <a class="ib a" title="Download"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></a>
+      <button class="ib a danger" title="Delete"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>
+    </span></div>
+    <div class="cell force-hover"><span class="pair">
+      <a class="ib a" title="Download"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></a>
+      <button class="ib a danger" title="Delete"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>
+    </span></div>
+
+    <!-- Option B -->
+    <div class="label">B · Soft tint<small>30px · blue tint + blue icon at rest</small></div>
+    <div class="cell"><span class="pair">
+      <a class="ib b" title="Download"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></a>
+      <button class="ib b danger" title="Delete"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>
+    </span></div>
+    <div class="cell force-hover"><span class="pair">
+      <a class="ib b" title="Download"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></a>
+      <button class="ib b danger" title="Delete"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>
+    </span></div>
+
+    <!-- Option C -->
+    <div class="label">C · Ghost accent<small>30px · borderless, blue icon at rest</small></div>
+    <div class="cell"><span class="pair">
+      <a class="ib c" title="Download"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></a>
+      <button class="ib c danger" title="Delete"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>
+    </span></div>
+    <div class="cell force-hover"><span class="pair">
+      <a class="ib c" title="Download"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></a>
+      <button class="ib c danger" title="Delete"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>
+    </span></div>
+  </div>
+</body>
+</html>

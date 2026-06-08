@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% block title %}Welcome | LAN File Server{% endblock %}
 {% block content %}
-<section class="panel">
+<section class="panel form-panel hero">
   <h2>Private LAN File Sharing</h2>
-  <p>Upload files up to 50 MB, download shared files, and manage your own uploads.</p>
+  <p>Upload files up to 50 MB, download shared files, post bulletin notes, and manage your own uploads — all on your local network.</p>
   <div class="actions">
-    <a class="button" href="{{ url_for('auth.register') }}">Create Account</a>
-    <a class="button button-secondary" href="{{ url_for('auth.login') }}">Sign In</a>
+    <a class="btn btn-primary" href="{{ url_for('auth.register') }}">Create Account</a>
+    <a class="btn btn-ghost" href="{{ url_for('auth.login') }}">Sign In</a>
   </div>
 </section>
 {% endblock %}

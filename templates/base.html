@@ -7,38 +7,90 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
   </head>
   <body>
-    <header class="site-header">
-      <div class="container header-inner">
-        <h1><a href="{{ url_for('landing') }}">LAN File Server</a></h1>
-        <nav>
-          {% if session.get('user_id') %}
-          <span class="user-tag">{{ session.get('username') }}</span>
-          <form class="inline" action="{{ url_for('auth.logout') }}" method="post">
-            <button type="submit">Sign Out</button>
-          </form>
-          {% else %}
+    {% set current_user = session.get('username') %}
+    {% if session.get('user_id') %}
+    <!-- Signed-in: full app shell -->
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">L</div>
+          <div>
+            <div class="brand-name">LAN File Server</div>
+            <div class="brand-sub">{{ request.host }}</div>
+          </div>
+        </div>
+        <nav class="nav">
+          <div class="nav-label">Workspace</div>
+          <a class="active" href="{{ url_for('files_page') }}"><span class="ico">▣</span> Dashboard</a>
+          <a href="{{ url_for('files_page') }}#files"><span class="ico">🗂</span> Files</a>
+          <a href="{{ url_for('files_page') }}#bulletin"><span class="ico">📌</span> Bulletin</a>
+        </nav>
+        <div class="sidebar-foot">
+          <div class="avatar">{{ current_user[:1]|upper }}</div>
+          <div class="sidebar-user">
+            <div class="sidebar-user-name">{{ current_user }}</div>
+            <form class="inline" action="{{ url_for('auth.logout') }}" method="post">
+              <button class="linklike" type="submit">Sign out</button>
+            </form>
+          </div>
+        </div>
+      </aside>
+
+      <div class="main">
+        <header class="toolbar">
+          <div class="toolbar-titles">
+            <div class="crumbs">{% block crumbs %}Workspace / Dashboard{% endblock %}</div>
+            <h1>{% block page_title %}Operational Overview{% endblock %}</h1>
+          </div>
+          {% block toolbar_actions %}{% endblock %}
+        </header>
+
+        <div class="content">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+          <ul class="flash-list toast-container">
+            {% for category, message in messages %}
+            <li class="flash toast {{ category }}">{{ message }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+          {% endwith %}
+
+          {% block content %}{% endblock %}
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <!-- Signed-out: simple centered shell -->
+    <div class="auth-shell">
+      <header class="auth-header">
+        <div class="brand">
+          <div class="brand-mark">L</div>
+          <a class="brand-name" href="{{ url_for('landing') }}">LAN File Server</a>
+        </div>
+        <nav class="auth-nav">
           <a href="{{ url_for('auth.register') }}">Sign Up</a>
           <a href="{{ url_for('auth.login') }}">Sign In</a>
-          {% endif %}
         </nav>
-      </div>
-    </header>
+      </header>
+      <main class="auth-main">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <ul class="flash-list toast-container">
+          {% for category, message in messages %}
+          <li class="flash toast {{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+        {{ self.content() }}
+      </main>
+    </div>
+    {% endif %}
 
-    <main class="container">
-      {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-      <ul class="flash-list toast-container">
-        {% for category, message in messages %}
-        <li class="flash toast {{ category }}">{{ message }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
-      {% endwith %}
-
-      {% block content %}{% endblock %}
-    </main>
     <script>
       window.addEventListener("load", function () {
+        // Auto-dismiss toasts
         document.querySelectorAll(".toast").forEach(function (toast, index) {
           setTimeout(function () {
             toast.classList.add("toast-hide");
@@ -47,7 +99,20 @@
             }, 250);
           }, 4200 + index * 300);
         });
+
+        // Toolbar search: filter the shared-files table by filename
+        var search = document.querySelector("[data-file-search]");
+        if (search) {
+          search.addEventListener("input", function () {
+            var term = search.value.trim().toLowerCase();
+            document.querySelectorAll("[data-file-row]").forEach(function (row) {
+              var name = (row.getAttribute("data-filename") || "").toLowerCase();
+              row.style.display = !term || name.indexOf(term) !== -1 ? "" : "none";
+            });
+          });
+        }
       });
     </script>
+    {% block scripts %}{% endblock %}
   </body>
 </html>
