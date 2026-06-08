@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Phase 2 charts — Chart.js MVP</title>
+<script src="vendor/chart.umd.min.js"></script>
+<style>
+  :root{
+    --space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;
+    --bg:#f4f6fa;--panel:#fff;--ink:#1b2333;--muted:#687389;--faint:#9aa4b8;
+    --accent:#1565c0;--border:#e3e8f0;--shadow:0 1px 2px rgba(20,30,55,.04),0 6px 20px rgba(20,30,55,.06);--radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Inter","Segoe UI",system-ui,sans-serif;font-size:14px;padding:var(--space-6);}
+  .tag{display:inline-block;background:#0e1b33;color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;margin-bottom:var(--space-4);}
+  h1{font-size:18px;margin:0 0 var(--space-5);}
+  .charts{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:var(--space-5);align-items:start;max-width:1100px;}
+  .charts2{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--space-5);max-width:1100px;margin-top:var(--space-5);}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+  .card-head{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-5) var(--space-5) var(--space-4);}
+  .card-head h2{font-size:15px;margin:0;}.card-sub{color:var(--muted);font-size:12px;}
+  .card-body{padding:0 var(--space-5) var(--space-5);}
+  .chart-box{position:relative;height:200px;}
+  .chart-box.sm{height:170px;}
+  @media(max-width:900px){.charts,.charts2{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+  <span class="tag">Option B · Chart.js (vendored locally, ~201 KB)</span>
+  <h1>Phase 2 charts — same data, rendered with Chart.js</h1>
+
+  <div class="charts">
+    <div class="card">
+      <div class="card-head"><div><h2>Uploads Over Time</h2><span class="card-sub">Files added per day · last 14 days</span></div></div>
+      <div class="card-body"><div class="chart-box"><canvas id="bars"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div><h2>By File Type</h2><span class="card-sub">Share of storage</span></div></div>
+      <div class="card-body"><div class="chart-box sm"><canvas id="donut"></canvas></div></div>
+    </div>
+  </div>
+
+  <div class="charts2">
+    <div class="card">
+      <div class="card-head"><div><h2>Top Uploaders</h2><span class="card-sub">By file count</span></div></div>
+      <div class="card-body"><div class="chart-box sm"><canvas id="uploaders"></canvas></div></div>
+    </div>
+    <div class="card" style="background:transparent;border:0;box-shadow:none">
+      <div class="card-body" style="color:var(--muted);font-size:13px;padding-top:var(--space-5)">
+        <b>Notes:</b> hover any bar/segment for a tooltip; charts animate on load. Needs the ~201 KB Chart.js asset served from <code>static/</code> (works offline once vendored). Data is injected as JSON from the server.
+      </div>
+    </div>
+  </div>
+
+<script>
+  const days=["5/26","5/27","5/28","5/29","5/30","5/31","6/1","6/2","6/3","6/4","6/5","6/6","6/7","6/8"];
+  const uploads=[3,5,2,7,9,4,6,11,8,12,5,9,14,7];
+  const types=[{label:"PDF",val:35,color:"#d4453b"},{label:"ZIP",val:28,color:"#6b54c6"},{label:"Images",val:18,color:"#0c7a43"},{label:"Sheets",val:12,color:"#137a4d"},{label:"Docs",val:7,color:"#1565c0"}];
+  const uploaders=[{name:"Nelson",val:412},{name:"Amy",val:338},{name:"Chen",val:221},{name:"Wei",val:142},{name:"Lin",val:83}];
+
+  Chart.defaults.font.family='Inter, "Segoe UI", system-ui, sans-serif';
+  Chart.defaults.color='#687389';
+
+  new Chart(document.getElementById('bars'),{type:'bar',
+    data:{labels:days,datasets:[{label:'Uploads',data:uploads,backgroundColor:'#1565c0',borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{beginAtZero:true,grid:{color:'#eef1f6'}},x:{grid:{display:false}}}}});
+
+  new Chart(document.getElementById('donut'),{type:'doughnut',
+    data:{labels:types.map(t=>t.label),datasets:[{data:types.map(t=>t.val),backgroundColor:types.map(t=>t.color),borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'right',labels:{boxWidth:10,boxHeight:10,padding:12}}}}});
+
+  new Chart(document.getElementById('uploaders'),{type:'bar',
+    data:{labels:uploaders.map(u=>u.name),datasets:[{label:'Files',data:uploaders.map(u=>u.val),backgroundColor:['#1565c0','#2e90ff','#5aa9ff','#8cc4ff','#b9dbff'],borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{beginAtZero:true,grid:{color:'#eef1f6'}},y:{grid:{display:false}}}}});
+</script>
+</body>
+</html>
