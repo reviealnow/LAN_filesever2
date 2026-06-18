@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 from pathlib import Path
 
 from flask import current_app
@@ -70,6 +71,56 @@ def get_file_by_id(file_id: int):
         """,
         (file_id,),
     )
+
+
+# ---------------------------------------------------------------------------
+# Dashboard aggregates (Phase 2 charts). Return plain JSON-serializable dicts
+# so the data can drive either server-rendered SVG or a future Chart.js view.
+# ---------------------------------------------------------------------------
+
+def uploads_per_day(days: int = 14):
+    """Files uploaded per calendar day for the last `days` days, zero-filled."""
+    rows = query_all("SELECT date(uploaded_at) AS d, COUNT(*) AS c FROM files GROUP BY d")
+    counts = {r["d"]: r["c"] for r in rows}
+    today = date.today()
+    series = []
+    for offset in range(days - 1, -1, -1):
+        day = today - timedelta(days=offset)
+        series.append({
+            "date": day.isoformat(),
+            "label": f"{day.month}/{day.day}",
+            "count": counts.get(day.isoformat(), 0),
+        })
+    return series
+
+
+def files_by_type():
+    """Aggregate file count and total size per extension, largest first."""
+    rows = query_all("SELECT filename, size FROM files")
+    agg: dict[str, dict] = {}
+    for row in rows:
+        name = row["filename"]
+        ext = name.rsplit(".", 1)[1].lower() if "." in name else "other"
+        entry = agg.setdefault(ext, {"ext": ext, "count": 0, "size": 0})
+        entry["count"] += 1
+        entry["size"] += row["size"]
+    return sorted(agg.values(), key=lambda e: e["size"], reverse=True)
+
+
+def top_uploaders(limit: int = 5):
+    """Users ranked by number of files uploaded."""
+    rows = query_all(
+        """
+        SELECT u.username AS username, COUNT(*) AS count
+        FROM files AS f
+        JOIN users AS u ON f.uploaded_by = u.id
+        GROUP BY f.uploaded_by
+        ORDER BY count DESC, u.username ASC
+        LIMIT ?
+        """,
+        (limit,),
+    )
+    return [dict(r) for r in rows]
 
 
 def delete_file(file_row, requester_id: int) -> None:
