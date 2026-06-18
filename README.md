@@ -59,10 +59,12 @@ pip install -r requirements.txt
 python app.py
 ```
 
-Or use the helper script:
+Or use the one-command bootstrap script (creates the venv, installs
+dependencies, generates a persistent `SECRET_KEY`, prints the LAN URL,
+and starts the server):
 
 ```bash
-./scripts/dev_run.sh
+./scripts/start.sh
 ```
 
 Default run:
@@ -147,7 +149,8 @@ This usually means HTTPS traffic was sent to an HTTP server. Ensure protocol mat
   - DB access in `db.py`
 - Reusable contributor scaffold is included:
   - `docs/GETTING_STARTED.md`
-  - `scripts/dev_run.sh`
+  - `docs/DESIGN_SYSTEM.md`
+  - `scripts/start.sh`
   - `tests/README.md`
 
 ## License

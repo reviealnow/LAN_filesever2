@@ -19,7 +19,7 @@ LAN_filesever2/
 ├── docs/
 │   └── GETTING_STARTED.md  # Contributor onboarding notes
 ├── scripts/
-│   └── dev_run.sh          # Convenience local startup script
+│   └── start.sh            # One-command bootstrap + launch script
 ├── static/
 │   └── styles.css          # UI styling + toast notifications
 ├── templates/
